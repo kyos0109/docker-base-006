@@ -1,0 +1,37 @@
+version: '2'
+services:
+  nginx:
+    build:
+      context: ./build
+      dockerfile: Dockerfile-nginx
+      args:
+        DEMO: nooooooooooooo
+    command: ["nginx", "-g", "daemon off;"]
+    image: local/nginx:wow
+    ports:
+      - "8080:80"
+    volumes:
+      - ./www:/usr/share/nginx/html:rw
+      - ./logs/nginx/:/var/log/nginx:rw
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d:ro
+    links:
+      - php:fpm
+    depends_on:
+      - php
+  php:
+    image: php:7.2.10-fpm
+    volumes:
+      - ./www:/usr/share/nginx/html:rw
+      - ./logs/php/:/var/log/php:rw
+    links:
+      - mariadb:ddbb
+    depends_on:
+      - mariadb
+  mariadb:
+    image: mariadb:10.3
+    volumes:
+      - ./mysql:/var/lib/mysql:rw
+    environment:
+      MYSQL_ROOT_PASSWORD: "Aa123456Aa"
+      MYSQL_USER: "happy"
+      MYSQL_PASSWORD: "Aa123456"
