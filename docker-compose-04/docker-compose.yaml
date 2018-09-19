@@ -1,0 +1,27 @@
+version: '2.4'
+services:
+  web:
+    image: nginx:${NGINX_TAG}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1k"
+        max-file: "10"
+    ports:
+      - ${WEB_PORT}:80
+    restart: on-failure
+  happyweb:
+    image: nginx:alpine
+    cpu_shares: 512
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "${RSYSLOG_SERVER}"
+    ports:
+      - ${HAPPYWEB_PORT}:80
+    depends_on:
+      - rsyslog
+  rsyslog:
+    image: kyos0109/rsyslog-distroless:latest
+    ports:
+      - 514:514/udp
