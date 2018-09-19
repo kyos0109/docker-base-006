@@ -1,0 +1,43 @@
+version: '2.4'
+services:
+  haproxy:
+    image: kyos0109/haproxy-distroless
+    container_name: haproxy
+    volumes:
+      - ./conf/haproxy.cfg:/haproxy.cfg:ro
+    command: ["-f", "/haproxy.cfg"]
+    ports:
+      - 8080:8080
+    networks:
+      happy:
+        ipv4_address: 172.16.238.10
+        aliases:
+          - happy
+  rsyslog:
+    image: kyos0109/rsyslog-distroless:latest
+    pid: "service:haproxy"
+    network_mode: "service:haproxy"
+    volumes:
+      - log-data:/var/log
+    depends_on:
+      - haproxy
+  web:
+    image: nginx:alpine
+    pid: "service:haproxy"
+    ipc: "container:haproxy"
+    network_mode: "service:haproxy"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      - haproxy
+volumes:
+  log-data:
+    driver: local
+networks:
+  happy:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.254
