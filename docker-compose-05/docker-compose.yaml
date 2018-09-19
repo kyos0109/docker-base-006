@@ -1,0 +1,29 @@
+version: '2.4'
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: '13k'
+    max-file: '5'
+
+x-volumes:
+  &default-volume
+  driver: local
+
+services:
+  web:
+    image: nginx:alpine
+    logging: *default-logging
+  db:
+    image: mariadb:10.3
+    logging: *default-logging
+    volumes: ["vol1:/bbbb", "vol2:/dddd"]
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+
+volumes:
+  vol1: *default-volume
+  vol2:
+    << : *default-volume
+    name: volume02
