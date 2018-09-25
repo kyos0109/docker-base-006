@@ -1,0 +1,14 @@
+version: '2.4'
+services:
+  snmpd:
+    image: kyos0109/snmpd-docker-slim:latest
+    privileged: true
+    read_only: true
+    volume:
+      - /proc:/host_proc
+    network_mode: host
+    ports:
+      - 161:161/udp
+    tmpfs:
+      - /var/net-snmp
+    restart: on-failure
